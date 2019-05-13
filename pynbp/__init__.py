@@ -18,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.17'
+__version__ = '0.0.18'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -200,7 +200,7 @@ class BTPyNBP(BasePyNBP):
         connected = False
         serport = None
         sock = BluetoothSocket( RFCOMM )
-        # sock.settimeout(1.0)
+        sock.settimeout(1.0)
         sock.setblocking(False)
         # logging.warning('Binding to {0}:{1}'.format(self.ip, self.port))
         sock.bind(("", PORT_ANY))
@@ -234,6 +234,7 @@ class BTPyNBP(BasePyNBP):
                 logging.warning('3')
                 try:
                     conn, client_address = sock.accept()
+                    conn.setblocking(False)
                     connected = True
                     logging.warning('Connection from {0} open'.format(client_address))
                 except:
