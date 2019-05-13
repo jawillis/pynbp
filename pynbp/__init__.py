@@ -8,6 +8,7 @@ from pathlib import Path
 import socket
 import serial
 from bluetooth import *
+import errno
 
 """
 Python Numeric Broadcast Protocol
@@ -17,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.11'
+__version__ = '0.0.12'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -199,7 +200,8 @@ class BTPyNBP(BasePyNBP):
         connected = False
         serport = None
         sock = BluetoothSocket( RFCOMM )
-        sock.settimeout(1.0)
+        # sock.settimeout(1.0)
+        sock.setblocking(False)
         # logging.warning('Binding to {0}:{1}'.format(self.ip, self.port))
         sock.bind(("", PORT_ANY))
         sock.listen(1)
@@ -238,13 +240,18 @@ class BTPyNBP(BasePyNBP):
             if connected:
                 try:
                     data = conn.recv(1024)
-                    if data:
-                        text = data.decode().strip()
-                        logger.info(text)
-                        if text == "!ALL":
-                            logging.warning('ALL Packet Requested. Sending')
-                            conn.sendall(self._genpacket('ALL'))
+                except BluetoothError as e:
+                    err = e.args[0]
+                    if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+                        pass
+                else:
+                    text = data.decode().strip()
+                    logger.info(text)
+                    if text == "!ALL":
+                        logging.warning('ALL Packet Requested. Sending')
+                        conn.sendall(self._genpacket('ALL'))
 
+                try:
                     if time.time() - self.last_update_time > self.min_update_interval:
                         if nbppayload.packettype == 'UPDATE':
                             nbppacket = self._genpacket(type=nbppayload.packettype)
