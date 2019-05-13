@@ -18,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.12'
+__version__ = '0.0.13'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -243,7 +243,10 @@ class BTPyNBP(BasePyNBP):
                 except BluetoothError as e:
                     err = e.args[0]
                     if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+                        logger.warning('no data received...')
                         pass
+                    else:
+                        raise
                 else:
                     text = data.decode().strip()
                     logger.info(text)
@@ -267,6 +270,8 @@ class BTPyNBP(BasePyNBP):
                         conn.sendall(nbppacket)
                         self.updatelist = []
                         self.last_update_time = time.time()
+                    else:
+                        logger.warning('not enough time has passed..')
 
                 except:
                     logging.exception('Wifi Write Failed. Closing port.')
