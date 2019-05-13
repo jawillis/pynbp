@@ -18,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.16'
+__version__ = '0.0.17'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -220,9 +220,9 @@ class BTPyNBP(BasePyNBP):
         print("Waiting for connection on RFCOMM channel %d" % port)
 
         while True:
-            logging.info('1')
+            logging.warning('1')
             nbppayload = self.nbpqueue.get()
-            logging.info('2')
+            logging.warning('2')
             self.packettime = nbppayload.timestamp
 
             for kpi in nbppayload.nbpkpilist:
@@ -231,7 +231,7 @@ class BTPyNBP(BasePyNBP):
                 self.kpis[kpi.name] = kpi
 
             if not connected:
-                logging.info('3')
+                logging.warning('3')
                 try:
                     conn, client_address = sock.accept()
                     connected = True
@@ -240,23 +240,23 @@ class BTPyNBP(BasePyNBP):
                     logging.info('Socket conection not open - waiting for connection')
 
             if connected:
-                logging.info('4')
+                logging.warning('4')
                 try:
                     data = conn.recv(1024)
                 except BluetoothError as e:
                     err = e.args[0]
                     if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
-                        logging.info('no data received...')
+                        logging.warning('no data received...')
                         pass
                     else:
                         raise
                 else:
                     text = data.decode().strip()
-                    logging.info(text)
+                    logging.warning(text)
                     if text == "!ALL":
                         logging.warning('ALL Packet Requested. Sending')
                         conn.sendall(self._genpacket('ALL'))
-                logging.info('5')
+                logging.warning('5')
                 try:
                     if time.time() - self.last_update_time > self.min_update_interval:
                         if nbppayload.packettype == 'UPDATE':
@@ -266,7 +266,7 @@ class BTPyNBP(BasePyNBP):
                         elif nbppayload.packettype == 'METADATA':
                             nbppacket = self.metedata()
                         else:
-                            logging.info('Invalid packet type {0}.'.format(nbppayload.packettype))
+                            logging.warning('Invalid packet type {0}.'.format(nbppayload.packettype))
 
                         logging.warning(nbppacket.decode())
 
@@ -274,7 +274,7 @@ class BTPyNBP(BasePyNBP):
                         self.updatelist = []
                         self.last_update_time = time.time()
                     else:
-                        logging.info('not enough time has passed..')
+                        logging.warning('not enough time has passed..')
 
                 except:
                     logging.exception('Wifi Write Failed. Closing port.')
