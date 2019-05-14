@@ -18,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.21'
+__version__ = '0.0.22'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -220,9 +220,9 @@ class BTPyNBP(BasePyNBP):
         print("Waiting for connection on RFCOMM channel %d" % port)
 
         while True:
-            logging.warning('1')
+            # logging.warning('1')
             nbppayload = self.nbpqueue.get()
-            logging.warning('2')
+            # logging.warning('2')
             self.packettime = nbppayload.timestamp
 
             for kpi in nbppayload.nbpkpilist:
@@ -231,7 +231,7 @@ class BTPyNBP(BasePyNBP):
                 self.kpis[kpi.name] = kpi
 
             if not connected:
-                logging.warning('3')
+                # logging.warning('3')
                 try:
                     conn, client_address = sock.accept()
                     conn.setblocking(False)
@@ -241,7 +241,7 @@ class BTPyNBP(BasePyNBP):
                     logging.info('Socket conection not open - waiting for connection')
 
             if connected:
-                logging.warning('4')
+                # logging.warning('4')
                 try:
                     data = conn.recv(1024)
                 except BluetoothError as e:
@@ -260,7 +260,7 @@ class BTPyNBP(BasePyNBP):
                     if text == "!ALL":
                         logging.warning('ALL Packet Requested. Sending')
                         conn.sendall(self._genpacket('ALL'))
-                logging.warning('5')
+                # logging.warning('5')
                 try:
                     if time.time() - self.last_update_time > self.min_update_interval:
                         if nbppayload.packettype == 'UPDATE':
