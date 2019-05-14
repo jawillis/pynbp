@@ -18,7 +18,7 @@ This module implements HP Tuners / Track Addict Numeric Broadcast Protocol
 WiFI Implementation
 """
 
-__version__ = '0.0.20'
+__version__ = '0.0.21'
 home = str(Path.home())
 
 NbpKPI = namedtuple('NbpKPI', 'name, unit, value')
@@ -245,14 +245,15 @@ class BTPyNBP(BasePyNBP):
                 try:
                     data = conn.recv(1024)
                 except BluetoothError as e:
-                    err, msg = e.args[0]
-                    if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
-                        logging.warning('no data received...')
-                        pass
-                    else:
-                        logging.exception('some bullshit happened')
-                        logging.exception('err is {}'.format(err))
-                        raise
+                    pass
+                    # err, msg = e.args[0]
+                    # if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+                    #     logging.warning('no data received...')
+                    #     pass
+                    # else:
+                    #     logging.exception('some bullshit happened')
+                    #     logging.exception('err is {}'.format(err))
+                    #     raise
                 else:
                     text = data.decode().strip()
                     logging.warning(text)
