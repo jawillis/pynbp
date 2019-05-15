@@ -30,6 +30,7 @@ fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s\n%(message)s')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+logging.basicConfig(level=logging.WARNING)
 
 
 class BasePyNBP(threading.Thread):
@@ -256,9 +257,9 @@ class BTPyNBP(BasePyNBP):
                     #     raise
                 else:
                     text = data.decode().strip()
-                    logging.warning(text)
+                    logging.info(text)
                     if text == "!ALL":
-                        logging.warning('ALL Packet Requested. Sending')
+                        logging.info('ALL Packet Requested. Sending')
                         conn.sendall(self._genpacket('ALL'))
                 # logging.warning('5')
                 try:
@@ -272,15 +273,15 @@ class BTPyNBP(BasePyNBP):
                         else:
                             logging.warning('Invalid packet type {0}.'.format(nbppayload.packettype))
 
-                        logging.warning(nbppacket.decode())
+                        logging.info(nbppacket.decode())
 
                         conn.sendall(nbppacket)
                         self.updatelist = []
                         self.last_update_time = time.time()
                     else:
-                        logging.warning('not enough time has passed..')
+                        logging.info('not enough time has passed..')
 
                 except:
-                    logging.exception('Wifi Write Failed. Closing port.')
+                    logging.warning('Wifi Write Failed. Closing port.')
                     conn.close()
                     connected = False
